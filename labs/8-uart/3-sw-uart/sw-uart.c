@@ -31,19 +31,21 @@ static inline void timed_write(int pin, int v, unsigned usec) {
 //time it in terms of cycce; ms are not granular alone; cycles/bit
 void sw_uart_put8(sw_uart_t *uart, unsigned char c) {
     unsigned sttime = cycle_cnt_read();
-    write_cyc_until(uart->tx, 0,sttime, uart->cycle_per_bit);
+    unsigned inc = uart->cycle_per_bit ;
+    write_cyc_until(uart->tx, 0,sttime, inc);
     //timed_write(uart->tx, 0, uart->usec_per_bit);
 
     // send the data bits
     for (int i = 0; i < 8; i++) {
-        int bit = (c >> i) & 1;
-        sttime += (uart -> cycle_per_bit);
-        write_cyc_until(uart->tx, bit ,sttime, uart->cycle_per_bit);
+        int bit = (c >> i) & 0x1;
+        
+        //sttime += (uart -> cycle_per_bit);
+        write_cyc_until(uart->tx, bit ,sttime, inc * (2 + i));
         //timed_write(uart->tx, bit, uart->usec_per_bit);
     }
 
     // send the stop bits
-    write_cyc_until(uart->tx, 0,sttime + (uart->cycle_per_bit), uart->cycle_per_bit);
+    write_cyc_until(uart->tx, 1,sttime, inc *10);
    // timed_write(uart->tx, 1, uart->usec_per_bit);
     //todo("implement this routine");
 }
@@ -88,7 +90,7 @@ sw_uart_t sw_uart_mk_helper(unsigned tx, unsigned rx,
     //tx output rx ouptut: tx high
     //luca 
     gpio_set_function (tx, GPIO_FUNC_OUTPUT);
-    gpio_set_function (rx, GPIO_FUNC_OUTPUT);
+    gpio_set_function (rx, GPIO_FUNC_INPUT);
     //gpio_set_output(tx);
     //gpio_set_input(rx);
     gpio_write(tx, 1);

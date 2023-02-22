@@ -14,27 +14,35 @@ static cq_t uartQ;
 
 enum { out_pin = 21, in_pin = 20 };
 static volatile unsigned n_rising_edge, n_falling_edge;
-
+unsigned prev_s;
 
 // client has to define this.
 void interrupt_vector(unsigned pc) {
-    static uint32_t prev_pin_value = 1;
+    //static uint32_t prev_pin_value = 1;
     unsigned curr_pin_value = gpio_read(in_pin);
     unsigned s  = cycle_cnt_read();
-
+    
+    cq_push32(&uartQ, (s - prev_s));
     dev_barrier();
-
+    if(gpio_event_detected(in_pin))
+    {
+        if(curr_pin_value == 0)
+        {
+           // n_falling_edge++;
+            cq_push32(&uartQ, 0);
+        }
+        else{
+            //n_rising_edge++;
+            cq_push32(&uartQ, 1);
+        }
+         gpio_event_clear(in_pin);
+    }
+    prev_s = s;
     // Push the cycles since the last event into the queue.
-    cq_push32(&uartQ, s);
-
+    
     // Push the previous pin value into the queue. If the previous event was a falling edge,
     // the value pushed is 1. Otherwise, it's 0.
-    cq_push32(&uartQ, prev_pin_value);
-
-    // Update the previous pin value.
-    prev_pin_value = curr_pin_value;
-
-    gpio_event_clear(in_pin);
+    //gpio_event_clear(in_pin);
 
     dev_barrier();
     // 1. compute the cycles since the last event and push32 in the queue
@@ -57,13 +65,13 @@ void notmain() {
     sw_uart_t u = sw_uart_init(out_pin,in_pin, 115200);
     gpio_int_rising_edge(in_pin);
     gpio_int_falling_edge(in_pin);
+    gpio_event_clear(in_pin);
 
     uint32_t cpsr = cpsr_int_enable();
 
     assert(gpio_read(in_pin) == 1);
 
     // assert(gpio_read(in_pin) == 1);
-
     // starter code.
     // make sure this works first, then try to measure the overheads.
     delay_ms(100);

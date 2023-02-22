@@ -23,10 +23,19 @@
 swi_trampoline:
     TRAMPOLINE_FULL_REGS(do_syscall)
 
-@    push {r1-r12,r14}
-@    bl do_syscall
-@    pop {r1-r12,r14}
-@    movs pc, lr
+    push {r1-r12,r14}
+    bl do_syscall
+    pop {r1-r12,r14}
+    movs pc, lr
+
+.single_step_trampoline:
+    mov sp, #INT_STACK_ADDR
+    sub lr, lr, #4
+    push {r0-r12, lr}
+    mov r0, lr
+    bl simple_single_step
+    pop {r0-r12, lr}
+    bx lr
 
 @single_step_trampoline:
 @    mov sp, #INT_STACK_ADDR

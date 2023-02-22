@@ -326,26 +326,26 @@ Disassembly of section .text:
 00008480 <_interrupt_vector_slow>:
     8480:	e59ff030 	ldr	pc, [pc, #48]	; 84b8 <_interrupt_vector_fast+0x18>
     8484:	e59ff030 	ldr	pc, [pc, #48]	; 84bc <_interrupt_vector_fast+0x1c>
-    8488:	eaffffdc 	b	8400 <sys_plus1_handler>
-    848c:	e59ff02c 	ldr	pc, [pc, #44]	; 84c0 <_interrupt_vector_fast+0x20>
-    8490:	e59ff02c 	ldr	pc, [pc, #44]	; 84c4 <_interrupt_vector_fast+0x24>
-    8494:	e59ff02c 	ldr	pc, [pc, #44]	; 84c8 <_interrupt_vector_fast+0x28>
+    8488:	e59ff030 	ldr	pc, [pc, #48]	; 84c0 <_interrupt_vector_fast+0x20>
+    848c:	e59ff030 	ldr	pc, [pc, #48]	; 84c4 <_interrupt_vector_fast+0x24>
+    8490:	e59ff030 	ldr	pc, [pc, #48]	; 84c8 <_interrupt_vector_fast+0x28>
+    8494:	e59ff030 	ldr	pc, [pc, #48]	; 84cc <_interrupt_vector_fast+0x2c>
     8498:	e320f000 	nop	{0}
     849c:	e320f000 	nop	{0}
 
 000084a0 <_interrupt_vector_fast>:
     84a0:	e59ff010 	ldr	pc, [pc, #16]	; 84b8 <_interrupt_vector_fast+0x18>
     84a4:	e59ff010 	ldr	pc, [pc, #16]	; 84bc <_interrupt_vector_fast+0x1c>
-    84a8:	e59ff01c 	ldr	pc, [pc, #28]	; 84cc <_interrupt_vector_fast+0x2c>
-    84ac:	e59ff00c 	ldr	pc, [pc, #12]	; 84c0 <_interrupt_vector_fast+0x20>
-    84b0:	e59ff00c 	ldr	pc, [pc, #12]	; 84c4 <_interrupt_vector_fast+0x24>
-    84b4:	e59ff00c 	ldr	pc, [pc, #12]	; 84c8 <_interrupt_vector_fast+0x28>
+    84a8:	e59ff010 	ldr	pc, [pc, #16]	; 84c0 <_interrupt_vector_fast+0x20>
+    84ac:	e59ff010 	ldr	pc, [pc, #16]	; 84c4 <_interrupt_vector_fast+0x24>
+    84b0:	e59ff010 	ldr	pc, [pc, #16]	; 84c8 <_interrupt_vector_fast+0x28>
+    84b4:	e59ff010 	ldr	pc, [pc, #16]	; 84cc <_interrupt_vector_fast+0x2c>
     84b8:	00008830 	.word	0x00008830
     84bc:	0000884c 	.word	0x0000884c
-    84c0:	00008868 	.word	0x00008868
-    84c4:	00008884 	.word	0x00008884
-    84c8:	000088a0 	.word	0x000088a0
-    84cc:	000088bc 	.word	0x000088bc
+    84c0:	00008400 	.word	0x00008400
+    84c4:	00008868 	.word	0x00008868
+    84c8:	00008884 	.word	0x00008884
+    84cc:	000088a0 	.word	0x000088a0
 
 000084d0 <printk>:
     84d0:	e92d000f 	push	{r0, r1, r2, r3}

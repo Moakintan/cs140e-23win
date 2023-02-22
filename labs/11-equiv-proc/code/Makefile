@@ -9,9 +9,10 @@ PROGS  += 3-reg-save.c
 PROGS += 4-reg-restore.c
 PROGS += 5-single-step-one.c
 PROGS  = 0-user-sp-lr.c
+PROGS += 5-single-step-one.c
 
 # part 6: final
-# PROGS = 6-single-step-proc.c
+PROGS = 6-single-step-proc.c
 
 # have a common library for the tests
 LIB = libasm.a
@@ -39,6 +40,8 @@ STAFF_LIB_OBJS += staff-4-reg-restore-asm.o
 
 # LIB_SRC += 5-single-step-one-asm.S
 STAFF_LIB_OBJS += staff-5-single-step-one-asm.o
+
+STAFF_OBJS += ./staff-objs/kmalloc.o  
 
 # automatically run.
 RUN=1

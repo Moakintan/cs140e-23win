@@ -1,5 +1,7 @@
 // engler, cs140 put your gpio-int implementations in here.
 #include "rpi.h"
+#include "gpio.h"
+#include "rpi-interrupts.h"
 
 enum {
     GPIO_BASE = 0x20200000,
@@ -16,10 +18,10 @@ enum {
     GPIO_GPCLR1 = 0x2C,
     GPIO_GPLEV0 = 0x34,
     GPIO_GPLEV1 = 0x38,
-    GPIO_GPEDS0 = 0x40,
-    GPIO_GPEDS1 = 0x44,
-    GPIO_GPREN0 = 0x4C,
-    GPIO_GPREN1 = 0x50,
+    GPIO_GPEDS0 = 0x40,//
+    GPIO_GPEDS1 = 0x44,//
+    GPIO_GPREN0 = 0x4C, // 
+    GPIO_GPREN1 = 0x50, // 
     GPIO_GPFEN0 = 0x58,
     GPIO_GPFEN1 = 0x5C,
     GPIO_GPHEN0 = 0x64,
@@ -28,8 +30,8 @@ enum {
     GPIO_GPLEN1 = 0x74,
     GPIO_GPAREN0 = 0x7C,
     GPIO_GPAREN1 = 0x80,
-    GPIO_GPAFEN0 = 0x88,
-    GPIO_GPAFEN1 = 0x8C,
+    GPIO_GPAFEN0 = 0x88, //
+    GPIO_GPAFEN1 = 0x8C, //
     GPIO_GPPUD = 0x94,
     GPIO_GPPUDCLK0 = 0x98,
     GPIO_GPPUDCLK1 = 0x9C,
@@ -40,9 +42,9 @@ enum {
 // note: we can only get interrupts for <GPIO_INT0> since the
 // (the other pins are inaccessible for external devices).
 int gpio_has_interrupt(void) {
-    DEV_VAL(;)
+    
     //dev_val();
-    return get32(GPIO_BASE + GPIO_GPEDS0) & (1 << GPIO_INT0);
+    return DEV_VAL32(GET32(IRQ_pending_2) & (1 << (GPIO_INT0 -32)));
     //todo("implement: is there a GPIO_INT0 interrupt?\n");
 }
 
@@ -55,13 +57,15 @@ void gpio_int_rising_edge(unsigned pin) {
     // unsigned fsel = pin / 10, shift = (pin % 10) * 3;
     // put32(GPIO_BASE + GPIO_GPFEN0 + fsel*4, get32(GPIO_BASE + GPIO_GPFEN0 + fsel*4) | (1 << shift));
     // //todo("implement: detect rising edge\n");
-
-    unsigned fsel = get32((void*)(GPIO_BASE + GPIO_GPFSEL0));
-    fsel &= ~(7 << (pin * 3));
-    put32((void*)(GPIO_BASE + GPIO_GPFSEL0), fsel);
-    unsigned reg = get32((void*)(GPIO_BASE + GPIO_GPREN0));
+    dev_barrier();
+    unsigned reg = GET32((GPIO_BASE + GPIO_GPREN0));
     reg |= 1 << pin;
-    put32((void*)(GPIO_BASE + GPIO_GPREN0), reg);
+    PUT32((GPIO_BASE + GPIO_GPREN0), reg);
+    dev_barrier();
+
+    PUT32(Enable_IRQs_2, 0X20000);
+    dev_barrier();
+    
 }
 
 // p98: detect falling edge (1->0).  sampled using the system clock.  
@@ -70,12 +74,15 @@ void gpio_int_rising_edge(unsigned pin) {
 // interrupt is delayed two clock cycles.   if you want  lower latency,
 // you should use async falling edge. (p99)
 void gpio_int_falling_edge(unsigned pin) {
-    unsigned fsel = get32((void*)(GPIO_BASE + GPIO_GPFSEL0));
-    fsel &= ~(7 << (pin * 3));
-    put32((void*)(GPIO_BASE + GPIO_GPFSEL0), fsel);
-    unsigned reg = get32((void*)(GPIO_BASE + GPIO_GPFEN0));
+    dev_barrier();
+    unsigned reg = GET32((GPIO_BASE + GPIO_GPFEN0));
     reg |= 1 << pin;
-    put32((void*)(GPIO_BASE + GPIO_GPFEN0), reg);
+    PUT32((GPIO_BASE + GPIO_GPFEN0), reg);
+    dev_barrier();
+   // unsigned fsel = 
+   // fsel ;
+    PUT32((Enable_IRQs_2), 0x20000);
+    dev_barrier();
     //todo("implement: detect falling edge\n");
 }
 
@@ -84,13 +91,21 @@ void gpio_int_falling_edge(unsigned pin) {
 // read the pin to determine which caused it.
 int gpio_event_detected(unsigned pin) {
     //dev_val();
-    DEV_VAL()
-    return get32(GPIO_BASE + GPIO_GPEDS0) & (1 << pin);
+    dev_barrier();
+    unsigned dro = (GET32(GPIO_BASE + GPIO_GPEDS0));
+    dev_barrier();
+    return DEV_VAL32(( dro & (1 << pin)) ? 1: 0);
+    dev_barrier();
     //todo("implement: is an event detected?\n");
 }
 
 // p96: have to write a 1 to the pin to clear the event.
-void gpio_event_clear(unsigned pin) {
-    put32(GPIO_BASE + GPIO_GPEDS0, 1 << pin);
+void gpio_event_clear(unsigned pin) { 
+    if(pin >=32)
+        return;
+    //dev_barrier();
+    dev_barrier();
+    PUT32(GPIO_BASE + GPIO_GPEDS0, 1 << pin);
+    dev_barrier();
     //todo("implement: clear event on <pin>\n");
 }

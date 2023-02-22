@@ -55,7 +55,16 @@ void single_step_full(uint32_t regs[17]) {
         panic("pc=%x: is not a breakpoint fault??\n", pc);
 
     proc_t *p = curproc_get();
-    todo("compute reg hash and instructions.\n");
+    
+    //todo("compute reg hash and instructions.\n");
+    // Compute register hash.
+    //proc_t *p = curproc_get();
+   // p->reg_hash = fast_hash_inc32(regs, 17*sizeof regs[0], p->reg_hash);
+    uint32_t reg_hash = fast_hash_inc32(regs, 17 * sizeof regs[0], p->reg_hash);
+    p->reg_hash = reg_hash;
+
+    // Increment instruction counter.
+    p->inst_cnt++;
 
     if(verbose_p)  {
         output("------------------------------------------------\n");

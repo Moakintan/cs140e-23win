@@ -77,43 +77,43 @@ Disassembly of section .text:
     80f4:	00008b50 	.word	0x00008b50
 
 000080f8 <sw_uart_put8>:
-    80f8:	e92d41f0 	push	{r4, r5, r6, r7, r8, lr}
-    80fc:	e1a06000 	mov	r6, r0
-    8100:	e1a07001 	mov	r7, r1
-    8104:	ee1f4f3c 	mrc	15, 0, r4, cr15, cr12, {1}
-    8108:	e5905008 	ldr	r5, [r0, #8]
+    80f8:	e92d47f0 	push	{r4, r5, r6, r7, r8, r9, sl, lr}
+    80fc:	e1a08000 	mov	r8, r0
+    8100:	e1a09001 	mov	r9, r1
+    8104:	ee1f5f3c 	mrc	15, 0, r5, cr15, cr12, {1}
+    8108:	e5907008 	ldr	r7, [r0, #8]
     810c:	e3a01000 	mov	r1, #0, 0
     8110:	e5d00000 	ldrb	r0, [r0]
     8114:	eb0001c2 	bl	8824 <gpio_write>
     8118:	ee1f3f3c 	mrc	15, 0, r3, cr15, cr12, {1}
-    811c:	e0433004 	sub	r3, r3, r4
-    8120:	e1550003 	cmp	r5, r3
+    811c:	e0433005 	sub	r3, r3, r5
+    8120:	e1570003 	cmp	r7, r3
     8124:	8afffffb 	bhi	8118 <sw_uart_put8+0x20>
-    8128:	e3a08000 	mov	r8, #0, 0
+    8128:	e3a06000 	mov	r6, #0, 0
     812c:	ea00000a 	b	815c <sw_uart_put8+0x64>
-    8130:	e1a01857 	asr	r1, r7, r8
-    8134:	e5965008 	ldr	r5, [r6, #8]
-    8138:	e0844005 	add	r4, r4, r5
+    8130:	e1a01659 	asr	r1, r9, r6
+    8134:	e2864002 	add	r4, r6, #2, 0
+    8138:	e0040497 	mul	r4, r7, r4
     813c:	e2011001 	and	r1, r1, #1, 0
-    8140:	e5d60000 	ldrb	r0, [r6]
+    8140:	e5d80000 	ldrb	r0, [r8]
     8144:	eb0001b6 	bl	8824 <gpio_write>
     8148:	ee1f3f3c 	mrc	15, 0, r3, cr15, cr12, {1}
-    814c:	e0433004 	sub	r3, r3, r4
-    8150:	e1550003 	cmp	r5, r3
+    814c:	e0433005 	sub	r3, r3, r5
+    8150:	e1540003 	cmp	r4, r3
     8154:	8afffffb 	bhi	8148 <sw_uart_put8+0x50>
-    8158:	e2888001 	add	r8, r8, #1, 0
-    815c:	e3580007 	cmp	r8, #7, 0
+    8158:	e2866001 	add	r6, r6, #1, 0
+    815c:	e3560007 	cmp	r6, #7, 0
     8160:	dafffff2 	ble	8130 <sw_uart_put8+0x38>
-    8164:	e5965008 	ldr	r5, [r6, #8]
-    8168:	e0854004 	add	r4, r5, r4
-    816c:	e3a01000 	mov	r1, #0, 0
-    8170:	e5d60000 	ldrb	r0, [r6]
+    8164:	e0877107 	add	r7, r7, r7, lsl #2
+    8168:	e1a07087 	lsl	r7, r7, #1
+    816c:	e3a01001 	mov	r1, #1, 0
+    8170:	e5d80000 	ldrb	r0, [r8]
     8174:	eb0001aa 	bl	8824 <gpio_write>
     8178:	ee1f3f3c 	mrc	15, 0, r3, cr15, cr12, {1}
-    817c:	e0433004 	sub	r3, r3, r4
-    8180:	e1550003 	cmp	r5, r3
+    817c:	e0433005 	sub	r3, r3, r5
+    8180:	e1570003 	cmp	r7, r3
     8184:	8afffffb 	bhi	8178 <sw_uart_put8+0x80>
-    8188:	e8bd81f0 	pop	{r4, r5, r6, r7, r8, pc}
+    8188:	e8bd87f0 	pop	{r4, r5, r6, r7, r8, r9, sl, pc}
 
 0000818c <sw_uart_putk>:
     818c:	e92d4070 	push	{r4, r5, r6, lr}
@@ -129,7 +129,7 @@ Disassembly of section .text:
 
 000081b4 <sw_uart_get8>:
     81b4:	e92d4010 	push	{r4, lr}
-    81b8:	e3a0304a 	mov	r3, #74, 0	; 0x4a
+    81b8:	e3a0304c 	mov	r3, #76, 0	; 0x4c
     81bc:	e59f200c 	ldr	r2, [pc, #12]	; 81d0 <sw_uart_get8+0x1c>
     81c0:	e59f100c 	ldr	r1, [pc, #12]	; 81d4 <sw_uart_get8+0x20>
     81c4:	e59f000c 	ldr	r0, [pc, #12]	; 81d8 <sw_uart_get8+0x24>
@@ -150,7 +150,7 @@ Disassembly of section .text:
     81f8:	e3a01001 	mov	r1, #1, 0
     81fc:	e1a00006 	mov	r0, r6
     8200:	eb000154 	bl	8758 <gpio_set_function>
-    8204:	e3a01001 	mov	r1, #1, 0
+    8204:	e3a01000 	mov	r1, #0, 0
     8208:	e1a00007 	mov	r0, r7
     820c:	eb000151 	bl	8758 <gpio_set_function>
     8210:	e3a01001 	mov	r1, #1, 0
@@ -176,7 +176,7 @@ Disassembly of section .text:
     8260:	e8bd81f0 	pop	{r4, r5, r6, r7, r8, pc}
     8264:	e59f301c 	ldr	r3, [pc, #28]	; 8288 <sw_uart_mk_helper+0xac>
     8268:	e58d3000 	str	r3, [sp]
-    826c:	e3a03067 	mov	r3, #103, 0	; 0x67
+    826c:	e3a03069 	mov	r3, #105, 0	; 0x69
     8270:	e59f2014 	ldr	r2, [pc, #20]	; 828c <sw_uart_mk_helper+0xb0>
     8274:	e59f1014 	ldr	r1, [pc, #20]	; 8290 <sw_uart_mk_helper+0xb4>
     8278:	e59f0014 	ldr	r0, [pc, #20]	; 8294 <sw_uart_mk_helper+0xb8>

@@ -2,7 +2,19 @@
 
 @ r0: memory to store into.
 MK_FN(srs_super)
-    asm_todo(use srs to save lr and spsr into the memory pointed to by r0)
+    @ r0: memory to store into.
+    MK_FN(srs_super)
+    @ Copy sp to r1
+    mov r2, sp
+    @ Store lr and spsr into the memory pointed to by r0
+    mov sp, r0
+    
+    @ Use srs to switch to SUPER_MODE
+    srs sp, #SUPER_MODE
+    @ Restore sp
+    mov sp, r2
+    mov r0, lr
+    @ asm_todo(use srs to save lr and spsr into the memory pointed to by r0)
     bx lr
 
 MK_FN(spsr_set)
@@ -12,7 +24,8 @@ MK_FN(spsr_set)
 @ pointer to the array passed in <r0>
 @ use rfe to invoke it.
 MK_FN(rfe_asm)
-    asm_todo(use rfe to load the values pointed to by r0)
+    rfe r0
+    @ asm_todo(use rfe to load the values pointed to by r0)
     asm_not_reached();
 
 @ a trampoline that loads the stack pointer

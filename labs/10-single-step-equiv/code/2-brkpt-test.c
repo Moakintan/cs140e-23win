@@ -100,8 +100,8 @@ void notmain(void) {
 
 
     // set breakpoint using bcr0 and bvr0
-     b = cp14_bcr0_get();
-    b = bits_clear(b, 0); // disable the breakpoint temporarily
+    b = cp14_bcr0_get();
+    b = bits_clr(b, 0); // disable the breakpoint temporarily
     cp14_bcr0_set(b);
 
     cp14_bvr0_set((uint32_t)foo);

@@ -1,6 +1,8 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "boot-defs.h": "c"
+        "boot-defs.h": "c",
+        "vector-base.h": "c",
+        "bit-support.h": "c"
     }
 }
