@@ -27,11 +27,17 @@ static inline int brkpt_is_enabled0(void)
 
 // enable breakpoint 0
 static inline void brkpt_enable0(void) 
-    { unimplemented(); }
+    { 
+        cp14_bcr0_set(bit_set(cp14_bcr0_get(), 0));
+        //unimplemented(); 
+        }
 
 // disable breakpoint 0
 static inline void brkpt_disable0(void) 
-    { unimplemented(); }
+    { 
+        cp14_bcr0_set(bit_clr(cp14_bcr0_get(), 0));
+        //unimplemented(); 
+        }
 
 // if the current fault is a breakpoint, return 1
 static inline int fault_is_brkpt(void) 
@@ -52,11 +58,17 @@ static inline int watchpt_is_enabled0(void)
 
 // enable watchpoint 0
 static inline void watchpt_enable0(void) 
-    { unimplemented(); }
+    { 
+        cp14_wcr0_set(bit_set(cp14_wcr0_get(), 0));
+        //unimplemented(); 
+        }
 
 // disable watchpoint 0
 static inline void watchpt_disable0(void) 
-    { unimplemented(); }
+    { 
+        cp14_wcr0_set(bit_clr(cp14_wcr0_get(), 0));
+        //unimplemented(); 
+        }
 
 // if the current fault is a watchpoint, return 1
 static inline int fault_is_watchpt(void) 
@@ -65,4 +77,6 @@ static inline int fault_is_watchpt(void)
 // fault is from a load.
 static inline int fault_is_ld(void) 
     { return datafault_from_ld(); }
+
+
 #endif

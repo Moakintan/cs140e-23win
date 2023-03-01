@@ -1,0 +1,11 @@
+TRACE:do_syscall:FINAL: pid=1: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=2: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=3: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=4: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=5: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=6: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=7: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=8: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=9: total instructions=2, reg-hash=0xbfde46be
+TRACE:do_syscall:FINAL: pid=10: total instructions=2, reg-hash=0xbfde46be
+TRACE:proc_run_one:all done with processes

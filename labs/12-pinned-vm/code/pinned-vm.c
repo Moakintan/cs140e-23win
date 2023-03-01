@@ -9,6 +9,7 @@
 #include "pinned-vm-asm.h"
 #include "mmu.h"
 #include "procmap.h"
+#include "asm-helpers.h"
 
 // generate the _get and _set methods.
 // (see asm-helpers.h for the cp_asm macro 
@@ -18,10 +19,27 @@
 // do a manual translation in tlb:
 //   1. store result in <result>
 //   2. return 1 if entry exists, 0 otherwise.
+ // asm volatile("mrc p15, 5, %0, c15, c4, 2" : "=r"(idx):);
+    // asm volatile("mcr p15, 5, %0, c15, c4, 2" : "=r"(idx):);
+    // asm volatile("mrc p15, 5, %0, c15, c5, 2" : "=r"(va):);
+    // asm volatile("mcr p15, 5, %0, c15, c5, 2" : "=r"(va):);
+    // asm volatile("mrc p15, 5, %0, c15, c6, 2" : "=r"(pa):);
+    // asm volatile("mcr p15, 5, %0, c15, c6, 2" : "=r"(pa):);
+    // asm volatile("mrc p15, 5, %0, c15, c7, 2" : "=r"(attr):);
+    // asm volatile("mcr p15, 5, %0, c15, c7, 2" : "=r"(attr):);
+    // cp_asm_fn(Lockdown_index, p15, 5, c15, c4, 2);
+    // cp_asm_fn(Lockdown_VA, p15, 5, c15, c5, 2);
+    // cp_asm_fn(Lockdown_PA, p15, 5, c15, c6, 2);
+    // cp_asm_fn(Lockdown_attr, p15, 5, c15, c7, 2);
+    //cp_asm_fn(dfsr, p15, 5, c15, c4, 2);
+
+
 int tlb_contains_va(uint32_t *result, uint32_t va) {
     // 3-79
     assert(bits_get(va, 0,2) == 0);
     return staff_tlb_contains_va(result, va);
+    *result = bits_get(va, 0, 9) | bits_get(xlate_pa_get(), 10, 31) << 10;
+    return bit_is_off(xlate_pa_get(), 0);
 }
 
 // map <va>-><pa> at TLB index <idx> with attributes <e>
@@ -44,12 +62,47 @@ void pin_mmu_sec(unsigned idx,
 
     debug("about to map %x->%x\n", va,pa);
 
-
     // these will hold the values you assign for the tlb entries.
-    uint32_t x, va_ent, pa_ent, attr;
+    uint32_t x, va_ent, pa_ent, attr; 
 
+    cp_asm_fn(Lockdown_index, p15, 5, c15, c4, 2);
+    cp_asm_fn(Lockdown_VA, p15, 5, c15, c5, 2);
+    cp_asm_fn(Lockdown_PA, p15, 5, c15, c6, 2);
+    cp_asm_fn(Lockdown_attr, p15, 5, c15, c7, 2);
+
+    bits_set(x, 0, 2, idx);
+    Lockdown_index_set(idx);
+    // index set 0-2 to idx
+    va_ent = 0;
+    va_ent = bits_set(va_ent, 12, 31, (va >> 12));
+    va_ent = bits_set(va_ent, 0,7, e.asid);
+    va_ent = bits_set(va_ent, 9, 9, e.G);
+    va_ent |= va; 
+    Lockdown_VA_set(va_ent);
+
+    attr = 0;
+    attr = bits_set(attr, 1, 5, e.mem_attr);
+    attr = bits_set(attr, 7, 10, e.dom);
+    attr = bit_clr(attr, 6);
+    attr = bit_clr(attr, 0);
+    // bits_set(attr, 25, 31, e.AP_perm);
+    // attr 1-5 bits_set(attr, 1, 5, e.mem_attr), 7-10 
+    lockdown_attr_set(attr);
+
+    pa_ent = 0;
+    pa_ent = bits_set(pa_ent, 12, 31, (pa >> 12));
+    pa_ent = bits_set(pa_ent, 1, 3, e.AP_perm);
+    pa_ent = bits_set(pa_ent, 6, 7, e.pagesize);
+    pa_ent = bits_clr(pa_ent, 8, 9);
+    pa_ent = bit_set(pa_ent, 0);
+    // pa_ent 0, 1-3, 6-7
+    pa_ent |= pa;
+    Lockdown_PA_set(pa_ent);
+
+
+   
     // put your code here.
-    unimplemented();
+    //unimplemented();
 
     if((x = lockdown_va_get()) != va_ent)
         panic("lockdown va: expected %x, have %x\n", va_ent,x);
@@ -117,6 +170,10 @@ void domain_access_ctrl_set(uint32_t d) {
 void pin_mmu_on(procmap_t *p) {
     staff_pin_mmu_on(p);
     return;
+    enum { dom_kern = 1,            // domain for kernel=1
+           dom_user = 2 };  
+    //enum { OneMB = 1024*1024};
+    // enum 
 
     assert(!mmu_is_enabled());
 
@@ -126,11 +183,26 @@ void pin_mmu_on(procmap_t *p) {
 
     void *null_pt = 0;
 
-    todo("fill in the rest from the 1-test* code");
+    null_pt = kmalloc_aligned(4096*4, 1<<14);
+    assert((uint32_t)null_pt % (1<<14) == 0);
+
+    // take the null ptr code from the test - 2 lines 
+
+    // 3     // staff_domain_access_ctrl_set(~0);   // DOM_client << DOM);
+    uint32_t d = (DOM_client << dom_kern*2)
+                |(DOM_client << dom_user*2);
+    domain_access_ctrl_set(d);
+
+    //todo("fill in the rest from the 1-test* code");
+
+    // Allocate a 2^14 aligned, 0-filled 4k page table so that any non-TLB access
+    // gets a fault
+    //void* pt = all
+  
 
 
 
-
+    //mmu_on_first_time(1, pt);
     staff_mmu_on_first_time(1, null_pt);
     assert(mmu_is_enabled());
     pin_debug("enabled!\n");

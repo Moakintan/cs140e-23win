@@ -50,7 +50,6 @@ int do_syscall(uint32_t regs[17]) {
 
 void single_step_full(uint32_t regs[17]) {
     uint32_t pc = regs[15];
-
     if(!brkpt_fault_p())
         panic("pc=%x: is not a breakpoint fault??\n", pc);
 
@@ -60,7 +59,7 @@ void single_step_full(uint32_t regs[17]) {
     // Compute register hash.
     //proc_t *p = curproc_get();
    // p->reg_hash = fast_hash_inc32(regs, 17*sizeof regs[0], p->reg_hash);
-    uint32_t reg_hash = fast_hash_inc32(regs, 17 * sizeof regs[0], p->reg_hash);
+    uint32_t reg_hash = fast_hash_inc32(regs, 17*sizeof regs[0], p->reg_hash);
     p->reg_hash = reg_hash;
 
     // Increment instruction counter.
@@ -101,8 +100,8 @@ void notmain(void) {
     enum { N = 10 };
     for(int i = 0; i < N; i++) {
         //proc_fork_nostack(mov_ident, 0xcd6e5626);
-        //proc_fork_nostack(nop_1, 0xbfde46be);
-        proc_fork_stack(hello, 0);
+        proc_fork_nostack(nop_1, 0xbfde46be);
+        //proc_fork_stack(hello, 0);
     }
     proc_run_one();
 }

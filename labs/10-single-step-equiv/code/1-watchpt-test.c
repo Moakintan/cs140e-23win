@@ -32,7 +32,8 @@ void data_abort_vector(unsigned lr) {
 void notmain(void) {
 
     extern uint32_t interrupt_vec[];
-    vector_base_set((void*)interrupt_vec);
+    vector_base_reset((void*)interrupt_vec);
+
 
     // Install the exception handlers
 

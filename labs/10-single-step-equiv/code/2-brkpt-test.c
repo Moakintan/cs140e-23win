@@ -34,6 +34,7 @@ static volatile int n_faults = 0;
       - Instruction causing the fault is in `r14` plus 4.
 */
 void prefetch_abort_vector(unsigned lr) {
+    //panic("problem");
     // lr needs to get adjusted for watchpoint fault?
     // we should be able to return lr?
     if(!was_brkpt_fault())
@@ -55,11 +56,13 @@ void prefetch_abort_vector(unsigned lr) {
 
 
 void notmain(void) {
-    if (install_exception_vector(EXCEPT_PREFABORT, prefetch_abort_vector) < 0)
-        panic("error installing prefetch abort vector!\n");
+    extern uint32_t interrupt_vec[];
+    vector_base_reset((void*)interrupt_vec);
+    //if (install_exception_vector(EXCEPT_PREFABORT, prefetch_abort_vector) < 0)
+        //panic("error installing prefetch abort vector!\n");
 
     // 2. enable the debug coprocessor.
-   // cp14_enable();
+   //cp14_enable();
     // 1. install exception handlers: must have a valid trampoline for
     // prefetch_abort_vector
     //unimplemented();
@@ -84,8 +87,9 @@ void notmain(void) {
             BCR[0] = 1
         prefetch flush.
     */
-   
-    cp14_flush_prefetch();
+   prefetch_flush();
+    //flush_prefetch();
+    //cp14_flush_prefetch();
     /* 
      * see 13-17 for how to set bits
      * set:
@@ -101,20 +105,19 @@ void notmain(void) {
 
     // set breakpoint using bcr0 and bvr0
     b = cp14_bcr0_get();
-    b = bits_clr(b, 0); // disable the breakpoint temporarily
+    b = bit_clr(b, 0); // disable the breakpoint temporarily
     cp14_bcr0_set(b);
 
     cp14_bvr0_set((uint32_t)foo);
 
     b = cp14_bcr0_get();
-    b = bits_set(b, 0); // enable the breakpoint
-    b = bits_set(b, 1); // match on load
-    b = bits_set(b, 14); // match in both secure and non-secure worlds
-    b = bits_set(b, 15); // disable linking
-    b = bits_set(b, 16); // match
-    b = bits_set(b, 18); // supervisor or not
+    b = bits_clr(b, 20, 22);
+    b = bits_set(b, 14, 15, 0b00);
+    b = bits_set(b, 5, 8, 0b1111);
+    b = bits_set(b, 1, 2, 0b11);
+    b = bit_set(b, 0);
     cp14_bcr0_set(b);
-
+    prefetch_flush();
     // cp14_bcr0_write(0);
     // cp14_bvr0_write((uint32_t)foo);
     // cp14_bcr0_set_match();
@@ -137,7 +140,7 @@ void notmain(void) {
     for(int i = n_faults = 0; i < n; i++) {
         cp14_bcr0_enable();
         assert(cp14_bcr0_is_enabled());
-
+        //cp14_bcr0_set(b);
         trace("should see a breakpoint fault!\n");
         foo(i);
         assert(!cp14_bcr0_is_enabled());

@@ -9,7 +9,8 @@ interrupt_vec:
   ldr pc, =unhandled_reset
   ldr pc, =unhandled_undefined_instruction
   ldr pc, =unhandled_swi
-  ldr pc, =unhandled_prefetch_abort
+  @ ldr pc, =prefetch_abort
+  b prefetch_abort
   ldr pc, =data_abort
   ldr pc, =interrupt_asm
 
@@ -38,7 +39,7 @@ prefetch_abort:
 
 data_abort:
   mov sp, #INT_STACK_ADDR   
-  sub   lr, lr, #4
+  sub   lr, lr, #8
   push  {r0-r12,lr}         @ XXX: pushing too many registers: only need caller
   mov   r0, lr              @ Pass old pc
   bl    data_abort_vector    @ C function
