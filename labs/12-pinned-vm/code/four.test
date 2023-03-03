@@ -1,0 +1,6 @@
+TRACE:notmain:about to enable
+TRACE:data_abort_vector:Data abort fault occurred at PC: 0x802c
+TRACE:data_abort_vector:Domain: 0x2 with the DFSR status: 0x9
+TRACE:data_abort_vector:Data abort fault occurred at PC: 0x8024
+TRACE:data_abort_vector:Domain: 0x2 with the DFSR status: 0x9
+PANIC:./staff-src/default-handler-prefetch.c:prefetch_abort_vector:2:called default handler: unhandled exception <prefetch abort> at PC=0x1000000

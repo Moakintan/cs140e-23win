@@ -12,7 +12,7 @@ void vm_test(void) {
     output("should die with a message about a permission error\n");
     uint32_t unmapped = (STACK_ADDR +  4*OneMB);
     proc.die_addr = unmapped;
-    staff_mmu_map_section(proc.pt, unmapped, unmapped, proc.dom_id);
+    mmu_map_section(proc.pt, unmapped, unmapped, proc.dom_id);
     mmu_mark_sec_no_access(proc.pt, unmapped, 1);
 
     void (*fp)(void) = (void*)unmapped;

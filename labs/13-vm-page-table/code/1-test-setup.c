@@ -40,7 +40,6 @@ void vm_test(void) {
      *
      * you should write additional tests!
      */
-
     // read and write a few values.
     int x = 5, v0, v1;
     assert(get32(&x) == 5);
@@ -56,7 +55,7 @@ void vm_test(void) {
      */
     vm_ident_mmu_off();
     printk("OFF\n");
-
+    
     // 7. make sure worked.
     assert(v0 == 5);
     assert(v1 == 6);
@@ -64,6 +63,7 @@ void vm_test(void) {
 }
 
 void notmain() {
+    printk("asdf");
     kmalloc_init_set_start((void*)OneMB, OneMB);
     printk("implement one at a time.\n");
     check_vm_structs();

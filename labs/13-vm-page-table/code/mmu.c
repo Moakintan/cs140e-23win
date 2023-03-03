@@ -3,13 +3,15 @@
 #include "rpi-interrupts.h"
 #include "libc/helper-macros.h"
 #include "libc/bit-support.h"
+#include "asm-helpers.h"
 #include "mmu.h"
 
 /***********************************************************************
  * the following code is given
  */
-
+//cpasm
 enum { OneMB = 1024 * 1024 };
+cp_asm(cp15_domain_access_ctrl, p15, 0, c3, c0, 0);
 
 // maximum number of 1mb section entries for a 32-bit address space
 enum { MAX_SEC_PTE = 4096};
@@ -140,7 +142,7 @@ void mmu_mprotect(fld_t *pt, unsigned va, unsigned nsec, unsigned perm) {
 
     // must call this routine on each PTE modification (you'll implement
     // next lab).
-    mmu_sync_pte_mods();
+    staff_mmu_sync_pte_mods();
 }
 
 // set so that we use armv6 memory.
@@ -151,20 +153,19 @@ void mmu_mprotect(fld_t *pt, unsigned va, unsigned nsec, unsigned perm) {
 //  3. check that the coprocessor write succeeded.
 void mmu_init(void) { 
     // reset the MMU state: you will implement next lab
-    mmu_reset();
+    staff_mmu_reset();
 
     // trivial: RMW the xp bit in control reg 1.
     // leave mmu disabled.
     //todo("read control reg 1, turn on XP bit (non-back compat)");
-
-    // make sure write succeeded.
     struct control_reg1 c1 = cp15_ctrl_reg1_rd();
-    assert(c1.XP_pt);
-    assert(!c1.MMU_enabled);
+    c1.XP_pt = 1;
+    cp15_ctrl_reg1_wr(c1);
+  
 
     // make sure write succeeded.
     c1 = cp15_ctrl_reg1_rd();
-    assert(c1.XP_pt);
+    assert(c1.XP_pt == 1) ;
     assert(!c1.MMU_enabled);
 }
 
@@ -196,6 +197,8 @@ fld_t * mmu_map_section(fld_t *pt, uint32_t va, uint32_t pa, uint32_t dom) {
     assert(mod_pow2(va, 20));
     assert(mod_pow2(pa, 20));
 
+    // return staff_mmu_map_section(pt, va, pa, dom);
+
     // assign pte: call <fld_set_base_addr> to set <sec_base_addr>
     // set each pte entry to: 
     //   1. global
@@ -224,12 +227,16 @@ fld_t * mmu_map_section(fld_t *pt, uint32_t va, uint32_t pa, uint32_t dom) {
 
 // read and return the domain access control register
 uint32_t domain_access_ctrl_get(void) {
-    return staff_domain_access_ctrl_get();
+    return cp15_domain_access_ctrl_get();
 }
 
 // b4-42
 // set domain access control register to <r>
 void domain_access_ctrl_set(uint32_t r) {
-    staff_domain_access_ctrl_set(r);
-    assert(domain_access_ctrl_get() == r);
+    cp15_domain_access_ctrl_set(r);
+    assert(cp15_domain_access_ctrl_get() == r);
 }
+
+// void domain_access_ctrl_set(uint32_t d) {
+//     staff_domain_access_ctrl_set(d);
+// }

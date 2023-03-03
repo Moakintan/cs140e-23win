@@ -122,11 +122,11 @@ void cp15_tlbr_print(void);
 void cp15_domain_print(void);
 
 
-#if 0
+#if 1
 /*******************************************************************************
  * MMU register read and writes.  
  */
-// 16 2 bit access control fields.
+   // 16 2 bit access control fields.
 uint32_t cp15_domain_ctrl_rd(void);
 void cp15_domain_ctrl_wr(uint32_t d);
 

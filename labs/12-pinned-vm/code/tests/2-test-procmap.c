@@ -21,8 +21,9 @@ void notmain(void) {
 
     procmap_t p = procmap_default_mk(dom_kern);
     procmap_push(&p, pr_ent_mk(user_addr, MB, MEM_RW, dom_user));
-
+    
     trace("about to enable\n");
+    
     pin_mmu_on(&p);
 
     lockdown_print_entries("about to turn on first time");

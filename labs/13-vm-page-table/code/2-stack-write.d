@@ -1,4 +1,4 @@
-3-test-die-permission-error.o: 3-test-die-permission-error.c vm-ident.h \
+2-stack-write.o: 2-stack-write.c vm-ident.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/libc/demand.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/gpio.h \

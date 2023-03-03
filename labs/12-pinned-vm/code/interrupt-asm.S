@@ -9,14 +9,13 @@ interrupt_vec:
   ldr pc, =unhandled_reset
   ldr pc, =unhandled_undefined_instruction
   ldr pc, =unhandled_swi
-  @ ldr pc, =prefetch_abort
-  b prefetch_abort
+  ldr pc, =prefetch_abort
+  @ b prefetch_abort
   ldr pc, =data_abort
   ldr pc, =interrupt_asm
 
 @ only handler that should run since we only enable general interrupts
-interrupt_asm_trampoline:
-  TRAMPOLINE_FULL_REGS(do_syscall)
+interrupt_asm:
   mov sp, #INT_STACK_ADDR   
   sub   lr, lr, #4
   push  {r0-r12,lr}         @ XXX: pushing too many registers: only need caller

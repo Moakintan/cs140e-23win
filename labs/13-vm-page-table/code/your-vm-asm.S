@@ -117,5 +117,6 @@ MK_FN(cp15_set_procid_ttbr0)
 @
 @ also could just call the above from C code! :)
 MK_FN(mmu_on_first_time)
+    
     asm_todo("implement this for pinned vm")
     bx lr

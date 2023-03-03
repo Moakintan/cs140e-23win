@@ -30,8 +30,8 @@ void notmain(void) {
     pin_t dev  = pin_mk_global(dom_kern, no_user, MEM_device);
     // description of kernel memory
     pin_t kern = pin_mk_global(dom_kern, no_user, MEM_uncached);
-
     unsigned idx = 0;
+    
     // all the device memory: identity map
     pin_mmu_sec(idx++, 0x20000000, 0x20000000, dev);
     pin_mmu_sec(idx++, 0x20100000, 0x20100000, dev);

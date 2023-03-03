@@ -1,17 +1,19 @@
 BOOTLOADER = my-install
 
-PROGS += tests/1-test-setup.c
-PROGS += tests/1-test-two-addr.c
-PROGS += tests/2-test-procmap.c
-PROGS += tests/2-test-lookup.c
+# PROGS += tests/1-test-setup.c
+# PROGS += tests/1-test-two-addr.c
+# PROGS += tests/2-test-procmap.c
+# PROGS += tests/2-test-lookup.c
+PROGS += four.c
+#PROGS := tests/2-test-procmap.c
 
 # make a local copy of cstart so you can modify it.
-COMMON_SRC = pinned-vm.c
-
+COMMON_SRC := pinned-vm.c 
+COMMON_SRC += interrupt-asm.S
 # make sure can drop in staff.
-STAFF_OBJS += staff-pinned-vm.o
+#STAFF_OBJS += staff-pinned-vm.o
 STAFF_OBJS += staff-mmu-asm.o  
-STAFF_OBJS += staff-mmu-except.o  
+#STAFF_OBJS += staff-mmu-except.o  
 STAFF_OBJS += staff-mmu.o  
 
 

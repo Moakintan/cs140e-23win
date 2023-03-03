@@ -18,6 +18,7 @@
 // do one time initialization of MMU, setup identity mappings, and start
 // running in mmu
 fld_t * vm_ident_mmu_init(int start_p) {
+    enum { MB = 1024 * 1024 };
     // 1. init
     mmu_init();
     assert(!mmu_is_enabled());
@@ -53,7 +54,7 @@ fld_t * vm_ident_mmu_init(int start_p) {
     vector_base_set(default_vec_ints);
 
     // 4. start the context switch:
-
+    
     // set up permissions for the one domain we use rn.
     domain_access_ctrl_set(0b01 << dom_id*2);
 

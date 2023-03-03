@@ -28,10 +28,12 @@ void vm_test(void) {
 
     assert(get32(p) == 11);
     printk("******** success ************\n");
+
+    //printk("HASH: test2: success!\n")
 }
 
 void notmain() {
-    kmalloc_init_set_start(OneMB, OneMB);
+    kmalloc_init_set_start((void *)OneMB, OneMB);
     output("checking that stack gets extended\n");
     vm_test();
 }

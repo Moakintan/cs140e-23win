@@ -3,6 +3,9 @@
     "files.associations": {
         "boot-defs.h": "c",
         "vector-base.h": "c",
-        "bit-support.h": "c"
+        "bit-support.h": "c",
+        "armv6-debug-impl.h": "c",
+        "armv6-debug.h": "c",
+        "vm-ident.h": "c"
     }
 }

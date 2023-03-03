@@ -28,8 +28,7 @@ uint32_t lockdown_pa_get(void);
 
 void lockdown_attr_set(uint32_t x);
 uint32_t lockdown_attr_get(void);
-
-void xlate_pa_set(uint32_t x);
+//void xlate_pa_set(uint32_t x);
 
 // routines to manually check that a translation
 // can succeed.  we use these to check that 
@@ -38,12 +37,12 @@ void xlate_pa_set(uint32_t x);
 //    p 3-80---3-82 in arm1176.pdf
 
 // translate for a privileged read access
-void xlate_kern_rd_set(uint32_t x);
+//void xlate_kern_rd_set(uint32_t x);
 
 // translate for a priviledged write access
-void xlate_kern_wr_set(uint32_t x);
+//void xlate_kern_wr_set(uint32_t x);
 
 // get physical address after manual translation
-uint32_t xlate_pa_get(void);
+//uint32_t xlate_pa_get(void);
 
 #endif
