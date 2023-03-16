@@ -6,6 +6,7 @@
         "bit-support.h": "c",
         "armv6-debug-impl.h": "c",
         "armv6-debug.h": "c",
-        "vm-ident.h": "c"
+        "vm-ident.h": "c",
+        "nrf.h": "c"
     }
 }

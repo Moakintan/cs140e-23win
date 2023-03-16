@@ -5,8 +5,8 @@ BOOTLOADER = my-install
 PROGS := $(wildcard ./[0-2]-test*.c)
 #PROGS := 1-test-setup.c
 #PROGS := $(wildcard ./[0-7]-test*.c)
-PROGS := 2-stack-write.c
-PROGS := 4-test.c
+#PROGS := 2-stack-write.c
+#PROGS := 4-test.c
 
 
 # just some helpers: you should look through, has printing etc 
@@ -24,10 +24,10 @@ COMMON_SRC += mmu.c
 # STAFF_OBJS += staff-mmu-except.o
 COMMON_SRC += mmu-except.c
 
-#COMMON_SRC += your-vm-asm.S
+COMMON_SRC += your-vm-asm.S
 
 # <staff-mmu-asm.o> this will be removed next lab
-STAFF_OBJS += staff-mmu-asm.o  
+#STAFF_OBJS += staff-mmu-asm.o  
 STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/interrupts-asm.o
 STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/interrupts-vec-asm.o
 

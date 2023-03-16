@@ -42,8 +42,20 @@ MK_FN(get_cache_type)
 @ depending on your code, you might name this
 @ something else (or inline into the c code):
 @  void domain_access_ctrl_set(uint32_t dom_reg);
+@ move the value 0 into r1, read domain control regsiter, do a prefetch flush (no DSB needed)
+MK_FN(cp15_domain_ctrl_rd)
+    mov r1, #0 @ moves the value 0 into the r0 register
+    DOMAIN_CTRL_RD(r0)  @ need to read dom ctrl/ need to read control reg1
+    PREFETCH_FLUSH(r1)  @ according to section B2.7.6: any change to cp15 needs prefectchflush, no DSB needed
+    bx lr
+
+
+@ write input param into RD, do a prefectch flush (no DSB needed)
 MK_FN(cp15_domain_ctrl_wr)
-    asm_todo("implement this thursday")
+    DOMAIN_CTRL_WR(r0) @ arm1176 3-63 write to Domain Control reg / need to write input param into RD
+    @ any change to CP14/CP15 need prefetch flush to be VISIBLE - see b2-24
+    mov r0, #0  
+    PREFETCH_FLUSH(r0)
     bx lr
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -52,8 +64,23 @@ MK_FN(cp15_domain_ctrl_wr)
 @   - called on boot-up.
 @   - clear the dcache, icache, tlbs: make sure you obey 
 @     any rules from B2
+
+
+@ inavlidate dcache and icache (do not need to DSB because we are not cleaning the cache,
+@ invalidate both iTLB and dTLB
+@ invalidate BTB, need this b/c the code changed and so the branch predictor contents could be stale
+@ ensure invalidations complete and are visible
+@ do a prefecth flush to force completion on the BTB flush
 MK_FN(mmu_reset)
-    asm_todo("implement this thursday")
+    @ first clear dcache and icache )
+    @ see page B2-22, data cache invalidate must come before instruc cache
+    @ DO NOT clean data cache as it might potentially write garbage back to memory
+    mov r0, #0
+    INV_ALL_CACHES(r0) @ invalidate dcache and icache, do not need to DSB because we are not cleaning the cache
+    INV_TLB(r0)   @ invalidate both iTLB and dTLB b2-23
+    FLUSH_BTB(r0) @ invalidate BTB, need this b/c the code changed and so the branch predictor contents could be stale
+    DSB(r0) @ ensure completion of the ICache invalidation: b2-23
+    PREFETCH_FLUSH(r0) @ b2-23 - force completion on BTB flush, need to flush after a BTB flush, make TLB invalidation visible
     bx lr
 
 
@@ -81,7 +108,35 @@ MK_FN(mmu_disable_set_asm)
     @ flush, but instructions could get fetched before we could disable,
     @ defeating the purpose.
 
-    asm_todo("implement this thursday")
+    @ first, clean data cache, as this will be disabled in this op.
+    @ again: CLEAN, not invalidate. We want to preserve whatever updates
+    @ were made to memory prior to mmu being disabled
+    mov r2, #0
+    CLEAN_INV_DCACHE(r2) @ says that data cache must be disabled before
+    INV_ALL_CACHES(r2)
+    @INV_TLB(r2) @ invalidate TLB contents - readme states that we must invalidate TLBs aswell
+    @ FLUSH_BTB(r2) we don't need to do this here cause its assembly. We can just do this at the end
+    DSB(r2) @ ensure data cache operation completed - b2-21
+    PREFETCH_FLUSH(r2) @ ensure instruction operations visible - b2-21
+    @ 
+    @ clear bit 2 (C) of control register c1 - b3-13, updating the control register
+    @ also clear bit 2 (M) to disable MMU - b3-12
+    mov r1, r0 @ copy control register value to r1
+    and r1, r1, #1 @ turn off bits 0 and 2 - see above
+                   @ it should be okay to turn off both of these at once: 6-9
+                   @ we also want to disable iCache
+    mvn r2,  #0x1000 @ negate 12th bit to create mask
+    and r1, r1, r2 @ AND r1 with masked bit 12
+
+    @ write value back into control register
+    CONTROL_REG1_WR(r1)
+    mov r2, #0
+    PREFETCH_FLUSH(r2) @ perform prefetch flush after writing to coproc - b2-24
+    INV_ALL_CACHES(r2) @ invalidate instruction cache
+    FLUSH_BTB(r2) @ Since we are disabling the MMU here, we must invalidate BTB and PF
+    DSB(r2)
+    PREFETCH_FLUSH(r2) @ perform prefetch flush after writing to coproc - b2-24
+
     bx lr
 
 @ void mmu_enable_set_asm(cp15_ctrl_reg1_t c);
@@ -90,8 +145,49 @@ MK_FN(mmu_disable_set_asm)
 @ make sure you look at arm1176, 6-9.
 @
 MK_FN(mmu_enable_set_asm)
-    asm_todo("implement this thursday")
+    @ invalidate cache before enabling MMU
+    CONTROL_REG1_RD(r3)
+    bic r3, r3, #(1<<12) @bit clear
+    INV_ALL_CACHES(r1)
+    CONTROL_REG1_WR(r3)
+
+    mov r1, #0
+    PREFETCH_FLUSH(r1)
+
+    INV_ALL_CACHES(r1)
+    INV_TLB(r1) @ must invalidate contents if invalid and re-enabled: 6-9
+    DSB(r1) @ ensure data cache operation completed - b2-21
+    PREFETCH_FLUSH(r1) @ ensure instruction operations visible - b2-21
+
+    @ write enable bit to CP15 control register 1: 6-9
+    CONTROL_REG1_WR(r0)
+
+	@ enforce barrier before re-writing to control_reg1
+	FLUSH_BTB(r1)
+	DSB(r1)
+	PREFETCH_FLUSH(r1)
+    
     bx lr
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ part 3.5
+@ void mmu_sync_pte_mods();
+@     sync caches and wait for completion/visibility after updating
+@     PTEs.
+@
+MK_FN(mmu_sync_pte_mods)
+  @ see instruction sequence on pg b2-23
+  mov r0, #0
+  CLEAN_INV_DCACHE(r0)
+  @ INV_ICACHE(r0)
+  DSB(r0) @ ensure data cleaned from D cache is visible
+  INV_TLB(r0) 
+  FLUSH_BTB(r0)
+  DSB(r0) @ ensure completion of invalidate BTB
+  @ mov r0, #0
+  PREFETCH_FLUSH(r0)
+  bx lr
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ part 4
@@ -101,7 +197,36 @@ MK_FN(mmu_enable_set_asm)
 @
 @ this is the fanciest one.
 MK_FN(cp15_set_procid_ttbr0)
-    asm_todo("implement this thursday")
+    @ first, set ASID to 0: see b2-25
+
+    mov r2, #0
+    DSB(r2)
+    ASID_SET(r2) @ write 0 to ASID
+    mov r2, #0
+    FLUSH_BTB(r2)
+    DSB(r2)
+    PREFETCH_FLUSH(r2) @ ASID reset requires PF
+
+    @ b4-41: write 0 to lower 5 bits to be safe
+    mvn r2, #0x1f
+    and r1, r2
+    @ write to TTBR0
+    TTBR0_SET(r1)
+    @ write 0 to TTBR1 and TTBRBCR
+
+    mov r2, #0
+    TTBR1_SET(r2)
+    TTBR_BASE_CTRL_WR(r2)  @ Set ttbrd to 0
+
+    FLUSH_BTB(r2) @ must flush BTB after updating TTBR: b2-24 section 2.7.5
+    DSB(r2) @ensure BTB invalidated
+    PREFETCH_FLUSH(r2)
+    @ then update ASID/ProcID
+    ASID_SET(r0)
+    FLUSH_BTB(r2) @ need to invalidate BTB after changing ASID
+    DSB(r2) @ensure BTB invalidated
+    PREFETCH_FLUSH(r2) @ ASID reset requires PF
+
     bx lr
 
 
@@ -117,6 +242,33 @@ MK_FN(cp15_set_procid_ttbr0)
 @
 @ also could just call the above from C code! :)
 MK_FN(mmu_on_first_time)
-    
-    asm_todo("implement this for pinned vm")
+    @ asm_todo("implement this for pinned vm")
+    @ cp15_set_procid_ttbr0
     bx lr
+
+
+MK_FN(cp15_ctrl_reg1_wr)
+    mov r1, #0
+    CONTROL_REG1_WR(r0)  @ need to write input param into Rd
+    PREFETCH_FLUSH(r1)  @ according to section B2.7.6: any change to cp15 needs prefectchflush, no DSB needed
+    bx lr
+
+MK_FN(cp15_ctrl_reg1_rd)
+    mov r1, #0
+    CONTROL_REG1_RD(r0)  @ need to read control reg1
+    PREFETCH_FLUSH(r1)  @ according to section B2.7.6: any change to cp15 needs prefectchflush, no DSB needed
+    bx lr
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ assorted other ASM helpers below:
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@
+@ mmu_ttbr0_get()
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+MK_FN(mmu_ttbr0_get)
+  TTBR0_GET(r0)
+  bx lr
+

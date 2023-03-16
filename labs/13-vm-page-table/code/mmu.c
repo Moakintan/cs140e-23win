@@ -54,7 +54,7 @@ void mmu_disable_set(cp15_ctrl_reg1_t c) {
     assert(!c.MMU_enabled);
     assert(!c.C_unified_enable);
     // You'll implement this next lab.
-    staff_mmu_disable_set_asm(c);
+    mmu_disable_set_asm(c);
 }
 
 // disable the MMU by flipping the enable bit.   we 
@@ -75,7 +75,7 @@ void mmu_disable(void) {
 void mmu_enable_set(cp15_ctrl_reg1_t c) {
     assert(c.MMU_enabled);
     // you'll implement this next lab.
-    staff_mmu_enable_set_asm(c);
+    mmu_enable_set_asm(c);
 }
 
 // enable mmu by flipping enable bit.
@@ -92,7 +92,7 @@ void set_procid_ttbr0(unsigned pid, unsigned asid, fld_t *pt) {
     assert(pid > 64);
     assert(asid < 64 && asid);
     // you'll implement this next lab.
-    staff_cp15_set_procid_ttbr0(pid << 8 | asid, pt);
+    cp15_set_procid_ttbr0(pid << 8 | asid, pt);
 }
 
 /**************************************************************************
@@ -142,7 +142,7 @@ void mmu_mprotect(fld_t *pt, unsigned va, unsigned nsec, unsigned perm) {
 
     // must call this routine on each PTE modification (you'll implement
     // next lab).
-    staff_mmu_sync_pte_mods();
+    mmu_sync_pte_mods();
 }
 
 // set so that we use armv6 memory.
@@ -153,7 +153,7 @@ void mmu_mprotect(fld_t *pt, unsigned va, unsigned nsec, unsigned perm) {
 //  3. check that the coprocessor write succeeded.
 void mmu_init(void) { 
     // reset the MMU state: you will implement next lab
-    staff_mmu_reset();
+    mmu_reset();
 
     // trivial: RMW the xp bit in control reg 1.
     // leave mmu disabled.

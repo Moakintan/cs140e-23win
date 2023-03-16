@@ -1,14 +1,15 @@
-4-test.o: 4-test.c \
+nrf-hw-support.o: nrf-hw-support.c nrf.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/libc/demand.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/gpio.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi-constants.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/your-prototypes.h \
- /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi-constants.h \
+ /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/spi.h \
+ /Users/dupeakintan/Downloads/cs140e-23win/libpi/libc/circular.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi-interrupts.h \
- /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi.h vm-ident.h \
- mmu.h armv6-cp15.h armv6-vm.h \
+ /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi.h \
+ /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/rpi-inline-asm.h \
+ nrf-default-values.h nrf-hw-support.h \
  /Users/dupeakintan/Downloads/cs140e-23win/libpi/libc/bit-support.h \
- /Users/dupeakintan/Downloads/cs140e-23win/libpi/src/vector-base.h \
- /Users/dupeakintan/Downloads/cs140e-23win/libpi/libc/bit-support.h \
- /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/asm-helpers.h
+ /Users/dupeakintan/Downloads/cs140e-23win/libpi/include/src-loc.h \
+ /Users/dupeakintan/Downloads/cs140e-23win/libpi/libc/pretty-time.h

@@ -8,6 +8,9 @@ PROGS := $(wildcard tests/0-*.c)
 # all the tests
 PROGS := $(wildcard tests/[0123]-*.c)
 
+PROGS := tests/4-test-partner.c
+# make run
+
 LIBS += ./libgcc.a
 
 COMMON_SRC := nrf-hw-support.c nrf-public.c nrf-driver.c
