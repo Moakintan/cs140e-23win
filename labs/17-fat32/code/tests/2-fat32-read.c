@@ -42,6 +42,7 @@ void notmain() {
   pi_file_t *file = fat32_read(&fs, &root, name);
 
   printk("Printing config.txt (%d bytes):\n", file->n_data);
+  printk("N allocated (%d bytes):\n", file->n_alloc);
   printk("--------------------\n");
   for (int i = 0; i < file->n_data; i++) {
     printk("%c", file->data[i]);

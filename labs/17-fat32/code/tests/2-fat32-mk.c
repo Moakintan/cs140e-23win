@@ -17,6 +17,8 @@ void notmain() {
 
   printk("Loading the FAT.\n");
   fat32_fs_t fs = fat32_mk(&partition);
+
+  printk("Num entries: %d\n", fs.n_entries);
   assert(fs.fat);
 
   printk("PASS: %s\n", __FILE__);
